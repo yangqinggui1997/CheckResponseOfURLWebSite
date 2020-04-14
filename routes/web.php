@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/chk', function(){return view('welcome');});
 Route::post('/check', function(Request $request)
 {
 	try
@@ -25,7 +26,7 @@ Route::post('/check', function(Request $request)
 		$dom = new DOMDocument();
 		@$dom->loadHTML($urlContent);
 		$xpath = new DOMXPath($dom);
-		$hrefs = $xpath->evaluate("/html/body//a");
+		$hrefs = $xpath->evaluate("/html//a");
 		$urls = array();
 		$_url = NULL;
 		$response = NULL;
@@ -49,6 +50,7 @@ Route::post('/check', function(Request $request)
 		        $urls[] = $_url;
 		    }
 		}
+		usort($urls, function($urlA, $urlB){return (intval($urlA->status) - intval($urlB->status));});
 		return response()->json(array('flag' => TRUE, 'urls' => $urls));
 	}
 	catch(Exception $e)

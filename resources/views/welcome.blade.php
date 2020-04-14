@@ -29,23 +29,45 @@
 <body>
 <div class="container">
   <!-- Content here -->
-  <div class="row">
+  <div class="row" style=" margin-top: 100px">
     <div class="col-xl-2 col-md-2 col-sm-2"></div>
     <div class="col-xl-8 col-md-8 col-sm-8">
       <form class="form-inline">
-        <div class="form-group mx-sm-3 mb-2">
-          <label for="urlCheck" class="mr-2">URL </label>
-          <input type="text" class="form-control" id="txtUrlCheck" placeholder="https://vietvang.net">
-        </div>
-        <button type="button" class="btn btn-primary mb-2" id="btnCheck">Check</button>
+            <div class="form-group mx-sm-3 mb-2">
+              <label for="urlCheck" class="mr-2">URL </label>
+              <input type="text" class="form-control" id="txtUrlCheck" placeholder="https://vietvang.net">
+            </div>
+            <button type="button" class="btn btn-primary mb-2" id="btnCheck">Check</button>
       </form>
     </div>
     <div class="col-xl-2 col-md-2 col-sm-2"></div>
   </div>
-  <div class="row">
-    <div class="col-xl-2 col-md-2 col-sm-2"></div>
+  <div style="border: thin solid grey; margin: 5px 0"></div>
+  <div class="row" style=" margin-top: 15px">
+    <div class="col-xl-2 col-md-2 col-sm-2">
+        <label>Summary</label>
+    </div>
     <div class="col-xl-8 col-md-8 col-sm-8">
-        <table id="tblUrl" class="table table-striped table-bordered" style="width:100%">
+        <table id="tblSummary" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Response status</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    </div>
+      <div style="border: thin solid grey; margin: 5px 0"></div>
+    <div class="row" style=" margin-top: 15px">
+    <div class="col-xl-2 col-md-2 col-sm-2">
+        <label>Details</label>
+    </div>
+    <div class="col-xl-8 col-md-8 col-sm-8">
+        <table id="tblDetails" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
                     <th>#</th>
@@ -75,11 +97,11 @@
       NProgress.start();
     }
     $(function(){
-        var dtbURL = null;
         $(window).on('load', function(){
             NProgress.done();
         });
-        dtbURL = $('#tblUrl').DataTable();
+        $('#tblDetails').DataTable();
+        $('#tblSummary').DataTable();
         $('#btnCheck').on('click', function(){
             try
             {
@@ -105,13 +127,36 @@
                         try
                         {
                             var i = 0;
-                            var _dtbURL = $('#tblUrl');
+                            var j = 0;
+                            var k = 0;
+                            var count = 0;
+                            var dtbDetails = $('#tblDetails');
+                            var dtbSummary = $('#tblSummary');
                             if(data.flag)
                             {
-                                dtbURL.clear();
+                                dtbDetails.dataTable().fnClearTable();
+                                dtbSummary.dataTable().fnClearTable();
                                 for(; i < data.urls.length; ++i)
                                 {
-                                    _dtbURL.dataTable().fnAddData([(i + 1), '<a target="_blank" href="' + data.urls[i].url + '">' + data.urls[i].url + '</a>', data.urls[i].status]);
+                                    dtbDetails.dataTable().fnAddData([(i + 1), '<a target="_blank" href="' + data.urls[i].url + '">' + data.urls[i].url + '</a>', data.urls[i].status]);
+                                    if(!i && (data.urls[i].status === data.urls[j].status) && (i === data.urls.length - 1))
+                                        dtbSummary.dataTable().fnAddData([++k, data.urls[i].status, 1]);
+                                    else if(data.urls[i].status === data.urls[j].status && (i === data.urls.length - 1))
+                                        dtbSummary.dataTable().fnAddData([++k, data.urls[i].status, (i - count) + 1]);
+                                    else if(data.urls[i].status !== data.urls[j].status)
+                                    {
+                                        if(i === data.urls.length - 1)
+                                        {
+                                            dtbSummary.dataTable().fnAddData([++k, data.urls[j].status, i - count]);
+                                            dtbSummary.dataTable().fnAddData([++k, data.urls[i].status, 1]);
+                                        }
+                                        else
+                                        {
+                                            dtbSummary.dataTable().fnAddData([++k, data.urls[j].status, i - count]);
+                                            count = i;
+                                        }
+                                    }
+                                    j = i;
                                 }
                                 NProgress.done();
                             }
