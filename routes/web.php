@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/chk', function(){return view('welcome');});
 Route::post('/check', function(Request $request)
 {
 	try
